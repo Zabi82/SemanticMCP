@@ -1,0 +1,25 @@
+models:
+  - name: metricflow_time_spine
+    description: "Date spine for MetricFlow time-based queries"
+    columns:
+      - name: date_day
+        description: "Primary date column"
+
+semantic_models:
+  - name: metricflow_time_spine
+    description: "Time spine for MetricFlow"
+    model: ref('metricflow_time_spine')
+    
+    # Primary entity with a different name than the dimension
+    entities:
+      - name: ds
+        type: primary
+        expr: date_day
+    
+    # Time dimension
+    dimensions:
+      - name: date_day
+        type: time
+        type_params:
+          time_granularity: day
+        expr: date_day

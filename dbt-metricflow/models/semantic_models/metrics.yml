@@ -1,0 +1,223 @@
+metrics:
+  # Simple metrics (direct from measures)
+  - name: revenue
+    type: simple
+    label: "Total Revenue"
+    type_params:
+      measure: net_revenue
+    description: "Total revenue after discounts, our primary top-line metric"
+  
+  - name: order_volume
+    type: simple
+    label: "Order Count"
+    type_params:
+      measure: order_count
+    description: "Total number of orders placed"
+  
+  - name: gross_revenue
+    type: simple
+    label: "Gross Revenue"
+    type_params:
+      measure: gross_revenue
+    description: "Total revenue before discounts"
+  
+  - name: discount_amount
+    type: simple
+    label: "Total Discounts"
+    type_params:
+      measure: discount_amount
+    description: "Total discount amount given to customers"
+  
+  # Derived metrics (calculated from other metrics)
+  - name: average_order_value
+    type: derived
+    label: "Average Order Value (AOV)"
+    type_params:
+      expr: revenue / order_volume
+      metrics:
+        - revenue
+        - order_volume
+    description: "Average revenue per order"
+  
+  - name: discount_rate
+    type: derived
+    label: "Discount Rate %"
+    type_params:
+      expr: (discount_amount / gross_revenue) * 100
+      metrics:
+        - discount_amount
+        - gross_revenue
+    description: "Percentage of revenue given as discounts"
+  
+  # Business-specific metrics with non-obvious logic
+  - name: order_completion_rate
+    type: derived
+    label: "Order Completion Rate %"
+    type_params:
+      expr: (CAST(completed_orders AS DOUBLE) / CAST(order_volume AS DOUBLE)) * 100
+      metrics:
+        - completed_orders
+        - order_volume
+    description: "Percentage of orders that have been completed (status='F'). Business rule: Only 'F' status counts as completed."
+  
+  - name: completed_orders
+    type: simple
+    label: "Completed Orders"
+    type_params:
+      measure:
+        name: completed_orders
+        join_to_timespine: false
+    description: "Count of orders with status 'F' (Filled). Business rule: Only 'F' is considered completed."
+  
+  - name: pending_orders
+    type: simple
+    label: "Pending Orders"
+    type_params:
+      measure:
+        name: pending_orders
+        join_to_timespine: false
+    description: "Count of orders with status 'O' (Open) or 'P' (Pending). Business rule: Both O and P are considered pending."
+  
+  - name: completed_order_revenue
+    type: simple
+    label: "Completed Order Revenue"
+    type_params:
+      measure:
+        name: completed_order_value
+        join_to_timespine: false
+    description: "Total revenue from completed orders only (status='F')"
+  
+  - name: pending_order_value
+    type: simple
+    label: "Pending Order Value"
+    type_params:
+      measure:
+        name: pending_order_value
+        join_to_timespine: false
+    description: "Total value of orders not yet completed (status='O' or 'P')"
+  
+  - name: high_priority_orders
+    type: simple
+    label: "High Priority Orders"
+    type_params:
+      measure:
+        name: high_priority_orders
+        join_to_timespine: false
+    description: "Count of orders with priority '1-URGENT' or '2-HIGH'. Business rule: Only these two priorities are considered high."
+  
+  - name: high_priority_order_rate
+    type: derived
+    label: "High Priority Order Rate %"
+    type_params:
+      expr: (CAST(high_priority_orders AS DOUBLE) / CAST(order_volume AS DOUBLE)) * 100
+      metrics:
+        - high_priority_orders
+        - order_volume
+    description: "Percentage of orders that are high priority (1-URGENT or 2-HIGH)"
+  
+  # Ratio metrics (special type for ratios)
+  # NOTE: Commented out due to dbt metricflow limitations with cross-semantic-model ratios
+  # - name: revenue_per_customer
+  #   type: ratio
+  #   label: "Revenue per Customer"
+  #   type_params:
+  #     numerator: revenue
+  #     denominator: customer_count
+  #   description: "Average revenue generated per customer"
+  
+  # Cumulative metrics (running totals)
+  - name: cumulative_revenue
+    type: cumulative
+    label: "Cumulative Revenue"
+    type_params:
+      measure: net_revenue
+    description: "Running total of revenue over time"
+  
+  # Metrics with filters
+  - name: premium_customer_revenue
+    type: simple
+    label: "Premium Customer Revenue"
+    type_params:
+      measure: net_revenue
+    filter: |
+      {{ Dimension('customer_id__market_segment') }} IN ('AUTOMOBILE', 'BUILDING')
+    description: "Revenue from premium market segments only"
+  
+  # Time-based metrics
+  - name: monthly_revenue
+    type: simple
+    label: "Monthly Revenue"
+    type_params:
+      measure: net_revenue
+    time_granularity: month
+    description: "Revenue aggregated by month"
+  
+  # Geographic metrics
+  - name: revenue_by_nation
+    type: simple
+    label: "Revenue by Nation"
+    type_params:
+      measure: net_revenue
+    description: "Revenue broken down by nation/country"
+  
+  - name: revenue_by_region
+    type: simple
+    label: "Revenue by Region"
+    type_params:
+      measure: net_revenue
+    description: "Revenue broken down by geographic region"
+  
+  # Supplier metrics
+  - name: supplier_count
+    type: simple
+    label: "Supplier Count"
+    type_params:
+      measure: supplier_count
+    description: "Total number of distinct suppliers"
+
+  - name: supplier_revenue
+    type: simple
+    label: "Supplier Revenue"
+    type_params:
+      measure: net_revenue
+    description: "Revenue attributed to suppliers"
+  
+  - name: supplier_on_time_rate
+    type: derived
+    label: "Supplier On-Time Delivery Rate"
+    type_params:
+      expr: (on_time_deliveries / total_deliveries) * 100
+      metrics:
+        - on_time_deliveries
+        - total_deliveries
+    description: "Percentage of deliveries that arrived on or before commit date"
+  
+  # Part/Product metrics
+  - name: part_revenue
+    type: simple
+    label: "Part Revenue"
+    type_params:
+      measure: net_revenue
+    description: "Revenue by part/product"
+  
+  - name: part_quantity_sold
+    type: simple
+    label: "Part Quantity Sold"
+    type_params:
+      measure: quantity_sold
+    description: "Total quantity sold by part"
+  
+  # Supporting metrics for derived calculations
+  - name: on_time_deliveries
+    type: simple
+    label: "On-Time Deliveries"
+    type_params:
+      measure: on_time_delivery_count
+    description: "Count of deliveries that arrived on or before commit date"
+  
+  - name: total_deliveries
+    type: simple
+    label: "Total Deliveries"
+    type_params:
+      measure: delivery_count
+    description: "Total count of all deliveries"

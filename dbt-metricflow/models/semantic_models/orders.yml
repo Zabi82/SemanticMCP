@@ -1,0 +1,79 @@
+semantic_models:
+  - name: orders
+    description: "Order transactions with customer and financial details"
+    model: ref('stg_orders')
+    
+    # Define entities (things that can be used for grouping/filtering)
+    entities:
+      - name: order_id
+        type: primary
+        expr: orderkey
+      - name: customer_id
+        type: foreign
+        expr: custkey
+    
+    # Define dimensions (attributes for grouping/filtering)
+    dimensions:
+      - name: order_date
+        type: time
+        expr: orderdate
+        type_params:
+          time_granularity: day
+        description: "Date when order was placed"
+      
+      - name: order_status
+        type: categorical
+        expr: orderstatus
+        description: "Order status: O=Open, F=Filled, P=Pending"
+      
+      - name: order_priority
+        type: categorical
+        expr: orderpriority
+        description: "Order priority level"
+    
+    # Define measures (raw metrics that can be aggregated)
+    measures:
+      - name: order_count
+        agg: count
+        expr: orderkey
+        description: "Total number of orders"
+        # REQUIRED: Set aggregation time dimension
+        agg_time_dimension: order_date
+      
+      - name: total_order_value
+        agg: sum
+        expr: totalprice
+        description: "Sum of order values before discounts"
+        agg_time_dimension: order_date
+        create_metric: true  # Auto-create a metric
+      
+      # Business-specific measures for order status
+      - name: completed_orders
+        agg: sum
+        expr: "CASE WHEN orderstatus = 'F' THEN 1 ELSE 0 END"
+        description: "Count of completed (Filled) orders"
+        agg_time_dimension: order_date
+      
+      - name: pending_orders
+        agg: sum
+        expr: "CASE WHEN orderstatus IN ('O', 'P') THEN 1 ELSE 0 END"
+        description: "Count of pending orders (Open or Pending status)"
+        agg_time_dimension: order_date
+      
+      - name: completed_order_value
+        agg: sum
+        expr: "CASE WHEN orderstatus = 'F' THEN totalprice ELSE 0 END"
+        description: "Total value of completed orders"
+        agg_time_dimension: order_date
+      
+      - name: pending_order_value
+        agg: sum
+        expr: "CASE WHEN orderstatus IN ('O', 'P') THEN totalprice ELSE 0 END"
+        description: "Total value of pending orders"
+        agg_time_dimension: order_date
+      
+      - name: high_priority_orders
+        agg: sum
+        expr: "CASE WHEN orderpriority IN ('1-URGENT', '2-HIGH') THEN 1 ELSE 0 END"
+        description: "Count of high priority orders (1-URGENT or 2-HIGH)"
+        agg_time_dimension: order_date

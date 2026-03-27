@@ -1,0 +1,40 @@
+semantic_models:
+  - name: supplier
+    description: "Supplier master data"
+    model: ref('stg_supplier')
+    
+    entities:
+      - name: supplier_id
+        type: primary
+        expr: suppkey
+      - name: nation_id
+        type: foreign
+        expr: nationkey
+      - name: region_id
+        type: foreign
+        expr: regionkey
+    
+    dimensions:
+      - name: supplier_name
+        type: categorical
+        expr: supplier_name
+        description: "Name of the supplier"
+      
+      - name: supplier_since
+        type: time
+        expr: "DATE '1990-01-01'"  # Placeholder
+        type_params:
+          time_granularity: day
+    
+    measures:
+      - name: supplier_count
+        agg: count_distinct
+        expr: suppkey
+        description: "Total number of suppliers"
+        agg_time_dimension: supplier_since
+      
+      - name: total_supplier_balance
+        agg: sum
+        expr: account_balance
+        description: "Sum of supplier account balances"
+        agg_time_dimension: supplier_since

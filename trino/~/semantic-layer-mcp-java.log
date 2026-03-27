@@ -1,0 +1,11 @@
+2026-03-27T23:40:19.506+08:00  INFO 31767 --- [main] c.s.mcp.SemanticMcpServerApplication     : Starting SemanticMcpServerApplication v0.1.0 using Java 21.0.8 with PID 31767 (/Users/zabeer/SemanticMCP/SemanticLayerMCP/target/semantic-layer-mcp-0.1.0.jar started by zabeer in /Users/zabeer/SemanticMCP/trino)
+2026-03-27T23:40:19.507+08:00  INFO 31767 --- [main] c.s.mcp.SemanticMcpServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-03-27T23:40:19.836+08:00  INFO 31767 --- [main] c.s.m.service.KnowledgeGraphToolService  : Loaded 7 classes and 6 object properties from /Users/zabeer/iceberg-semantic/ontop/tpch.owl
+2026-03-27T23:40:19.983+08:00  INFO 31767 --- [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2026-03-27T23:40:20.038+08:00  INFO 31767 --- [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 11
+2026-03-27T23:40:20.039+08:00  INFO 31767 --- [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2026-03-27T23:40:20.039+08:00  INFO 31767 --- [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2026-03-27T23:40:20.040+08:00  INFO 31767 --- [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2026-03-27T23:40:20.139+08:00  INFO 31767 --- [pool-2-thread-1] i.m.server.McpAsyncServer                : Client initialize request - Protocol: 2025-11-25, Capabilities: ClientCapabilities[experimental=null, roots=null, sampling=null], Info: Implementation[name=kiro, version=0.0.0]
+2026-03-27T23:40:20.141+08:00  WARN 31767 --- [pool-2-thread-1] i.m.server.McpAsyncServer                : Client requested unsupported protocol version: 2025-11-25, so the server will suggest the 2024-11-05 version instead
+2026-03-27T23:40:20.211+08:00  INFO 31767 --- [main] c.s.mcp.SemanticMcpServerApplication     : Started SemanticMcpServerApplication in 0.985 seconds (process running for 1.274)

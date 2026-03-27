@@ -1,0 +1,74 @@
+semantic_models:
+  - name: lineitems
+    description: "Individual line items within orders"
+    model: ref('stg_lineitems')
+    
+    entities:
+      - name: lineitem_id
+        type: primary
+        expr: "orderkey || '-' || linenumber"
+      - name: order_id
+        type: foreign
+        expr: orderkey
+      - name: part_id
+        type: foreign
+        expr: partkey
+      - name: supplier_id
+        type: foreign
+        expr: suppkey
+    
+    dimensions:
+      - name: ship_date
+        type: time
+        expr: shipdate
+        type_params:
+          time_granularity: day
+      
+      - name: ship_mode
+        type: categorical
+        expr: shipmode
+    
+    measures:
+      - name: quantity_sold
+        agg: sum
+        expr: quantity
+        description: "Total quantity of items sold"
+        # REQUIRED: Set aggregation time dimension
+        agg_time_dimension: ship_date
+      
+      - name: gross_revenue
+        agg: sum
+        expr: extendedprice
+        description: "Revenue before discounts"
+        agg_time_dimension: ship_date
+      
+      - name: discount_amount
+        agg: sum
+        expr: extendedprice * discount
+        description: "Total discount given"
+        agg_time_dimension: ship_date
+      
+      - name: net_revenue
+        agg: sum
+        expr: extendedprice * (1 - discount)
+        description: "Revenue after discounts"
+        agg_time_dimension: ship_date
+        create_metric: true
+      
+      - name: tax_amount
+        agg: sum
+        expr: extendedprice * (1 - discount) * tax
+        description: "Total tax collected"
+        agg_time_dimension: ship_date
+      
+      - name: on_time_delivery_count
+        agg: sum
+        expr: "CASE WHEN shipdate <= commitdate THEN 1 ELSE 0 END"
+        description: "Count of deliveries that arrived on or before commit date"
+        agg_time_dimension: ship_date
+      
+      - name: delivery_count
+        agg: count
+        expr: "CASE WHEN shipdate IS NOT NULL THEN 1 END"
+        description: "Total count of deliveries"
+        agg_time_dimension: ship_date

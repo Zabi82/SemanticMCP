@@ -1,0 +1,130 @@
+[PrefixDeclaration]
+:		http://example.org/tpch#
+owl:		http://www.w3.org/2002/07/owl#
+rdf:		http://www.w3.org/1999/02/22-rdf-syntax-ns#
+rdfs:		http://www.w3.org/2000/01/rdf-schema#
+xsd:		http://www.w3.org/2001/XMLSchema#
+
+[MappingDeclaration] @collection [[
+
+mappingId	customer-class
+target		:customer/{custkey} a :Customer .
+source		SELECT custkey FROM semantic_demo.ice_db.customer
+
+mappingId	customer-name
+target		:customer/{custkey} :customerName {name} .
+source		SELECT custkey, name FROM semantic_demo.ice_db.customer
+
+mappingId	customer-market-segment
+target		:customer/{custkey} :marketSegment {mktsegment} .
+source		SELECT custkey, mktsegment FROM semantic_demo.ice_db.customer
+
+mappingId	customer-account-balance
+target		:customer/{custkey} :accountBalance {acctbal}^^xsd:decimal .
+source		SELECT custkey, acctbal FROM semantic_demo.ice_db.customer
+
+mappingId	customer-belongs-to-nation
+target		:customer/{custkey} :belongsToNation :nation/{nationkey} .
+source		SELECT custkey, nationkey FROM semantic_demo.ice_db.customer
+
+mappingId	order-class
+target		:order/{orderkey} a :Order .
+source		SELECT orderkey FROM semantic_demo.ice_db.orders
+
+mappingId	order-status
+target		:order/{orderkey} :orderStatus {orderstatus} .
+source		SELECT orderkey, orderstatus FROM semantic_demo.ice_db.orders
+
+mappingId	order-date
+target		:order/{orderkey} :orderDate {orderdate}^^xsd:date .
+source		SELECT orderkey, orderdate FROM semantic_demo.ice_db.orders
+
+mappingId	order-total-price
+target		:order/{orderkey} :totalPrice {totalprice}^^xsd:decimal .
+source		SELECT orderkey, totalprice FROM semantic_demo.ice_db.orders
+
+mappingId	customer-places-order
+target		:customer/{custkey} :placesOrder :order/{orderkey} .
+source		SELECT custkey, orderkey FROM semantic_demo.ice_db.orders
+
+mappingId	lineitem-class
+target		:lineitem/{orderkey}/{linenumber} a :LineItem .
+source		SELECT orderkey, linenumber FROM semantic_demo.ice_db.lineitem
+
+mappingId	lineitem-quantity
+target		:lineitem/{orderkey}/{linenumber} :quantity {quantity}^^xsd:decimal .
+source		SELECT orderkey, linenumber, quantity FROM semantic_demo.ice_db.lineitem
+
+mappingId	lineitem-extended-price
+target		:lineitem/{orderkey}/{linenumber} :extendedPrice {extendedprice}^^xsd:decimal .
+source		SELECT orderkey, linenumber, extendedprice FROM semantic_demo.ice_db.lineitem
+
+mappingId	lineitem-discount
+target		:lineitem/{orderkey}/{linenumber} :discount {discount}^^xsd:decimal .
+source		SELECT orderkey, linenumber, discount FROM semantic_demo.ice_db.lineitem
+
+mappingId	order-has-lineitem
+target		:order/{orderkey} :hasLineItem :lineitem/{orderkey}/{linenumber} .
+source		SELECT orderkey, linenumber FROM semantic_demo.ice_db.lineitem
+
+mappingId	lineitem-supplied-by
+target		:lineitem/{orderkey}/{linenumber} :suppliedBy :supplier/{suppkey} .
+source		SELECT orderkey, linenumber, suppkey FROM semantic_demo.ice_db.lineitem
+
+mappingId	lineitem-has-part
+target		:lineitem/{orderkey}/{linenumber} :hasPart :part/{partkey} .
+source		SELECT orderkey, linenumber, partkey FROM semantic_demo.ice_db.lineitem
+
+mappingId	supplier-class
+target		:supplier/{suppkey} a :Supplier .
+source		SELECT suppkey FROM semantic_demo.ice_db.supplier
+
+mappingId	supplier-name
+target		:supplier/{suppkey} :supplierName {name} .
+source		SELECT suppkey, name FROM semantic_demo.ice_db.supplier
+
+mappingId	supplier-account-balance
+target		:supplier/{suppkey} :accountBalance {acctbal}^^xsd:decimal .
+source		SELECT suppkey, acctbal FROM semantic_demo.ice_db.supplier
+
+mappingId	supplier-belongs-to-nation
+target		:supplier/{suppkey} :belongsToNation :nation/{nationkey} .
+source		SELECT suppkey, nationkey FROM semantic_demo.ice_db.supplier
+
+mappingId	part-class
+target		:part/{partkey} a :Part .
+source		SELECT partkey FROM semantic_demo.ice_db.part
+
+mappingId	part-name
+target		:part/{partkey} :partName {name} .
+source		SELECT partkey, name FROM semantic_demo.ice_db.part
+
+mappingId	part-brand
+target		:part/{partkey} :brand {brand} .
+source		SELECT partkey, brand FROM semantic_demo.ice_db.part
+
+mappingId	part-retail-price
+target		:part/{partkey} :retailPrice {retailprice}^^xsd:decimal .
+source		SELECT partkey, retailprice FROM semantic_demo.ice_db.part
+
+mappingId	nation-class
+target		:nation/{nationkey} a :Nation .
+source		SELECT nationkey FROM semantic_demo.ice_db.nation
+
+mappingId	nation-name
+target		:nation/{nationkey} :nationName {name} .
+source		SELECT nationkey, name FROM semantic_demo.ice_db.nation
+
+mappingId	nation-part-of-region
+target		:nation/{nationkey} :partOfRegion :region/{regionkey} .
+source		SELECT nationkey, regionkey FROM semantic_demo.ice_db.nation
+
+mappingId	region-class
+target		:region/{regionkey} a :Region .
+source		SELECT regionkey FROM semantic_demo.ice_db.region
+
+mappingId	region-name
+target		:region/{regionkey} :regionName {name} .
+source		SELECT regionkey, name FROM semantic_demo.ice_db.region
+
+]]

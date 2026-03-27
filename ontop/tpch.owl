@@ -1,0 +1,65 @@
+Prefix(:=<http://example.org/tpch#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+
+Ontology(<http://example.org/tpch>
+
+  Declaration(Class(:Customer))
+  Declaration(Class(:Order))
+  Declaration(Class(:LineItem))
+  Declaration(Class(:Supplier))
+  Declaration(Class(:Part))
+  Declaration(Class(:Nation))
+  Declaration(Class(:Region))
+
+  Declaration(DataProperty(:customerName))
+  Declaration(DataProperty(:marketSegment))
+  Declaration(DataProperty(:accountBalance))
+  Declaration(DataProperty(:orderStatus))
+  Declaration(DataProperty(:orderDate))
+  Declaration(DataProperty(:totalPrice))
+  Declaration(DataProperty(:quantity))
+  Declaration(DataProperty(:extendedPrice))
+  Declaration(DataProperty(:discount))
+  Declaration(DataProperty(:supplierName))
+  Declaration(DataProperty(:partName))
+  Declaration(DataProperty(:brand))
+  Declaration(DataProperty(:retailPrice))
+  Declaration(DataProperty(:nationName))
+  Declaration(DataProperty(:regionName))
+
+  Declaration(ObjectProperty(:placesOrder))
+  Declaration(ObjectProperty(:hasLineItem))
+  Declaration(ObjectProperty(:suppliedBy))
+  Declaration(ObjectProperty(:hasPart))
+  Declaration(ObjectProperty(:belongsToNation))
+  Declaration(ObjectProperty(:partOfRegion))
+
+  ObjectPropertyDomain(:placesOrder :Customer)
+  ObjectPropertyRange(:placesOrder :Order)
+
+  ObjectPropertyDomain(:hasLineItem :Order)
+  ObjectPropertyRange(:hasLineItem :LineItem)
+
+  ObjectPropertyDomain(:belongsToNation :Customer)
+  ObjectPropertyRange(:belongsToNation :Nation)
+
+  ObjectPropertyDomain(:partOfRegion :Nation)
+  ObjectPropertyRange(:partOfRegion :Region)
+
+  ObjectPropertyDomain(:suppliedBy :LineItem)
+  ObjectPropertyRange(:suppliedBy :Supplier)
+
+  ObjectPropertyDomain(:hasPart :LineItem)
+  ObjectPropertyRange(:hasPart :Part)
+
+  AnnotationAssertion(rdfs:label :Customer "Customer - A buyer in the TPC-H supply chain")
+  AnnotationAssertion(rdfs:label :Order "Order - A purchase order placed by a customer")
+  AnnotationAssertion(rdfs:label :Nation "Nation - A country in a geographic region")
+  AnnotationAssertion(rdfs:label :Region "Region - A geographic region grouping nations")
+  AnnotationAssertion(rdfs:label :Supplier "Supplier - A supplier of parts")
+  AnnotationAssertion(rdfs:label :Part "Part - A product or component")
+  AnnotationAssertion(rdfs:label :LineItem "LineItem - A line item within an order")
+)

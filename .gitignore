@@ -1,0 +1,31 @@
+# Maven build output
+DataLakeHouseMCPJava/target/
+SemanticLayerMCPJava/target/
+
+# dbt build artifacts
+dbt-metricflow/target/
+dbt-metricflow/logs/
+dbt-metricflow/.user.yml
+
+# Ontop JDBC driver (downloaded separately)
+ontop/trino-jdbc.jar
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Kiro internal
+.kiro/
+.kiro/specs/
+
+# Personal demo notes (not for public repo)
+demo-guide.md
+DEMO_CHECKLIST.md

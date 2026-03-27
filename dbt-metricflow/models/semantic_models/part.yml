@@ -1,0 +1,50 @@
+semantic_models:
+  - name: part
+    description: "Part/product master data"
+    model: ref('stg_part')
+    
+    entities:
+      - name: part_id
+        type: primary
+        expr: partkey
+    
+    dimensions:
+      - name: part_name
+        type: categorical
+        expr: part_name
+        description: "Name of the part"
+      
+      - name: manufacturer
+        type: categorical
+        expr: manufacturer
+        description: "Manufacturer of the part"
+      
+      - name: brand
+        type: categorical
+        expr: brand
+        description: "Brand of the part"
+      
+      - name: part_type
+        type: categorical
+        expr: part_type
+        description: "Type of the part"
+      
+      - name: part_since
+        type: time
+        expr: "DATE '1990-01-01'"  # Placeholder
+        type_params:
+          time_granularity: day
+    
+    measures:
+      - name: part_count
+        agg: count_distinct
+        expr: partkey
+        description: "Total number of distinct parts"
+        agg_time_dimension: part_since
+        create_metric: true
+      
+      - name: average_retail_price
+        agg: average
+        expr: retail_price
+        description: "Average retail price of parts"
+        agg_time_dimension: part_since

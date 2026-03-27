@@ -1,0 +1,29 @@
+semantic_models:
+  - name: region
+    description: "Geographic region master data"
+    model: ref('stg_region')
+    
+    entities:
+      - name: region_id
+        type: primary
+        expr: regionkey
+    
+    dimensions:
+      - name: region_name
+        type: categorical
+        expr: region_name
+        description: "Name of the geographic region"
+      
+      - name: region_since
+        type: time
+        expr: "DATE '1990-01-01'"  # Placeholder
+        type_params:
+          time_granularity: day
+    
+    measures:
+      - name: region_count
+        agg: count_distinct
+        expr: regionkey
+        description: "Total number of regions"
+        agg_time_dimension: region_since
+        create_metric: true

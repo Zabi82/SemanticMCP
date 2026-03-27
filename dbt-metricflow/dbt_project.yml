@@ -1,0 +1,27 @@
+name: dbt_metricflow
+version: 1.0.0
+profile: dbt_metricflow 
+
+config-version: 2
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  dbt_metricflow:
+    metricflow_time_spine:
+      +materialized: table
+      +enabled: true
+    staging:
+      +materialized: view
+      #+schema: staging
+    marts:
+      +materialized: table
+      #+schema: analytics
+      # Iceberg-specific configs
+      +properties:
+        format: 'PARQUET'
+        partitioning:
+          - 'order_date'

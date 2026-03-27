@@ -1,0 +1,32 @@
+semantic_models:
+  - name: nation
+    description: "Nation/country master data"
+    model: ref('stg_nation')
+    
+    entities:
+      - name: nation_id
+        type: primary
+        expr: nationkey
+      - name: region_id
+        type: foreign
+        expr: regionkey
+    
+    dimensions:
+      - name: nation_name
+        type: categorical
+        expr: nation_name
+        description: "Name of the nation/country"
+      
+      - name: nation_since
+        type: time
+        expr: "DATE '1990-01-01'"  # Placeholder
+        type_params:
+          time_granularity: day
+    
+    measures:
+      - name: nation_count
+        agg: count_distinct
+        expr: nationkey
+        description: "Total number of nations"
+        agg_time_dimension: nation_since
+        create_metric: true

@@ -1,0 +1,118 @@
+version: 2
+
+sources:
+  - name: ice_db 
+    description: "Raw TPC-H data in Iceberg format"
+    database: semantic_demo 
+    schema: ice_db 
+    
+    tables:
+      - name: customer
+        description: "Customer master data"
+        columns:
+          - name: custkey
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Customer name"
+          - name: mktsegment
+            description: "Market segment"
+          - name: acctbal
+            description: "Account balance"
+            
+      - name: orders
+        description: "Order transactions"
+        columns:
+          - name: orderkey
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: custkey
+            description: "Foreign key to customer"
+          - name: orderstatus
+            description: "Order status: O/F/P"
+          - name: totalprice
+            description: "Total order price"
+          - name: orderdate
+            description: "Order date"
+            
+      - name: lineitem
+        description: "Order line items"
+        columns:
+          - name: orderkey
+            description: "Foreign key to orders"
+          - name: linenumber
+            description: "Line number within order"
+          - name: partkey
+            description: "Foreign key to part"
+          - name: suppkey
+            description: "Foreign key to supplier"
+          - name: quantity
+            description: "Quantity ordered"
+          - name: extendedprice
+            description: "Extended price"
+          - name: discount
+            description: "Discount percentage"
+          - name: tax
+            description: "Tax percentage"
+      
+      - name: nation
+        description: "Nation/country data"
+        columns:
+          - name: nationkey
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nation name"
+          - name: regionkey
+            description: "Foreign key to region"
+      
+      - name: region
+        description: "Geographic regions"
+        columns:
+          - name: regionkey
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Region name"
+      
+      - name: supplier
+        description: "Supplier master data"
+        columns:
+          - name: suppkey
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Supplier name"
+          - name: nationkey
+            description: "Foreign key to nation"
+          - name: acctbal
+            description: "Account balance"
+      
+      - name: part
+        description: "Part/product master data"
+        columns:
+          - name: partkey
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Part name"
+          - name: mfgr
+            description: "Manufacturer"
+          - name: brand
+            description: "Brand"
+          - name: type
+            description: "Part type"
+          - name: retailprice
+            description: "Retail price"

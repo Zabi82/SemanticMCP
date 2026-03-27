@@ -1,0 +1,82 @@
+[[tabGroups]]
+name = "TPC-H Knowledge Graph"
+
+[[tabGroups.tabs]]
+name = "Customers by Region"
+query = """
+PREFIX : <http://example.org/tpch#>
+SELECT ?customerName ?nationName ?regionName WHERE {
+  ?c a :Customer ;
+     :customerName ?customerName ;
+     :belongsToNation ?n .
+  ?n :nationName ?nationName ;
+     :partOfRegion ?r .
+  ?r :regionName ?regionName .
+}
+ORDER BY ?regionName ?nationName
+LIMIT 50
+"""
+
+[[tabGroups.tabs]]
+name = "High-Value Customers"
+query = """
+PREFIX : <http://example.org/tpch#>
+SELECT ?customerName ?accountBalance ?marketSegment WHERE {
+  ?c a :Customer ;
+     :customerName ?customerName ;
+     :accountBalance ?accountBalance ;
+     :marketSegment ?marketSegment .
+  FILTER(?accountBalance > 5000)
+}
+ORDER BY DESC(?accountBalance)
+LIMIT 20
+"""
+
+[[tabGroups.tabs]]
+name = "Customer Orders"
+query = """
+PREFIX : <http://example.org/tpch#>
+SELECT ?customerName ?orderStatus ?totalPrice ?orderDate WHERE {
+  ?c a :Customer ;
+     :customerName ?customerName ;
+     :placesOrder ?o .
+  ?o :orderStatus ?orderStatus ;
+     :totalPrice ?totalPrice ;
+     :orderDate ?orderDate .
+}
+ORDER BY DESC(?totalPrice)
+LIMIT 30
+"""
+
+[[tabGroups.tabs]]
+name = "Suppliers by Nation"
+query = """
+PREFIX : <http://example.org/tpch#>
+SELECT ?supplierName ?nationName ?regionName ?accountBalance WHERE {
+  ?s a :Supplier ;
+     :supplierName ?supplierName ;
+     :accountBalance ?accountBalance ;
+     :belongsToNation ?n .
+  ?n :nationName ?nationName ;
+     :partOfRegion ?r .
+  ?r :regionName ?regionName .
+}
+ORDER BY ?regionName ?nationName
+LIMIT 50
+"""
+
+[[tabGroups.tabs]]
+name = "Parts and Suppliers"
+query = """
+PREFIX : <http://example.org/tpch#>
+SELECT ?partName ?brand ?retailPrice ?supplierName WHERE {
+  ?li a :LineItem ;
+      :hasPart ?p ;
+      :suppliedBy ?s .
+  ?p :partName ?partName ;
+     :brand ?brand ;
+     :retailPrice ?retailPrice .
+  ?s :supplierName ?supplierName .
+}
+LIMIT 30
+"""

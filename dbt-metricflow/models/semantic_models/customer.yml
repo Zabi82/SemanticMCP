@@ -1,0 +1,45 @@
+semantic_models:
+  - name: customer
+    description: "Customer master data"
+    model: ref('stg_customer')
+    
+    entities:
+      - name: customer_id
+        type: primary
+        expr: custkey
+      - name: nation_id
+        type: foreign
+        expr: nationkey
+    
+    dimensions:
+      - name: market_segment
+        type: categorical
+        expr: market_segment
+        description: "Customer market segment"
+      
+      - name: customer_name
+        type: categorical
+        expr: customer_name
+      
+      # Add a time dimension for customers (when they were added)
+      # If you don't have a customer_since date, we can use a constant
+      - name: customer_since
+        type: time
+        expr: "DATE '1990-01-01'"  # Placeholder - all customers treated as existing from this date
+        type_params:
+          time_granularity: day
+    
+    measures:
+      - name: customer_count
+        agg: count_distinct
+        expr: custkey
+        description: "Total number of unique customers"
+        # REQUIRED: Set aggregation time dimension
+        agg_time_dimension: customer_since
+        create_metric: true
+      
+      - name: total_account_balance
+        agg: sum
+        expr: account_balance
+        description: "Sum of customer account balances"
+        agg_time_dimension: customer_since

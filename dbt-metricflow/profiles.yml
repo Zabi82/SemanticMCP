@@ -1,0 +1,16 @@
+dbt_metricflow:
+  target: dev
+  outputs:
+    dev:
+      type: trino
+      method: none  # No authentication for local dev
+      host: "{{ env_var('TRINO_HOST', 'localhost') }}"
+      port: "{{ env_var('TRINO_PORT', '8080') | int }}"
+      user: admin
+      database: "{{ env_var('TRINO_CATALOG', 'semantic_demo') }}"  # Trino catalog name
+      schema: "{{ env_var('TRINO_SCHEMA', 'ice_db') }}"  # Default schema for dbt models
+      threads: 4
+      
+      # Session properties for Iceberg
+      session_properties:
+        query_max_run_time: "10m"
