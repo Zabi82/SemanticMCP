@@ -161,7 +161,7 @@ Use MCP Inspector to test tools interactively before the demo:
 
 ```bash
 # Test DataLakehouse MCP
-npx @modelcontextprotocol/inspector java -jar DataLakeHouseMCP/target/datalakehouse-mcp-java-0.1.0.jar
+npx @modelcontextprotocol/inspector java -jar DataLakeHouseMCP/target/datalakehouse-mcp-0.1.0.jar
 ```
 
 Opens at `http://localhost:6274`. Try:
@@ -173,7 +173,7 @@ Opens at `http://localhost:6274`. Try:
 # Test SemanticLayer MCP
 # Pass the OWL file path as an env var so kg_ontology_classes works correctly
 ONTOP_OWL_FILE=/absolute/path/to/ontop/tpch.owl \
-  npx @modelcontextprotocol/inspector java -jar SemanticLayerMCP/target/semantic-layer-mcp-java-0.1.0.jar
+  npx @modelcontextprotocol/inspector java -jar SemanticLayerMCP/target/semantic-layer-mcp-0.1.0.jar
 ```
 
 > Note: `ONTOP_OWL_FILE` must be an absolute path to `ontop/tpch.owl` in your local clone. If omitted, all knowledge graph tools work except `kg_ontology_classes`.
