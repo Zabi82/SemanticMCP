@@ -43,7 +43,7 @@ You are a data analyst AI assistant with access to a data lakehouse, a metric st
 ### MCP_Semantic_Server Tools — Knowledge Graph
 - `kg_ontology_classes` — list entity types and relationships in the ontology
 - `kg_customers_by_region` — traverse Customer → Nation → Region graph
-- `kg_high_value_customers` — find semantically-defined high-value customers (balance > 5000)
+- `kg_high_value_customers` — find semantically-defined high-value customers (top-tier account balance)
 - `kg_customer_order_graph` — 4-hop traversal for a given customer name
 - `kg_suppliers_by_region` — supplier counts per region via graph traversal
 - `kg_sparql_query` — raw SPARQL query (prefix: `PREFIX : <http://example.org/tpch#>`)

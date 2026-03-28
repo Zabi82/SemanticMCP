@@ -68,7 +68,7 @@ semantic_models:
         agg_time_dimension: ship_date
       
       - name: delivery_count
-        agg: count
-        expr: "CASE WHEN shipdate IS NOT NULL THEN 1 END"
+        agg: sum
+        expr: "1"
         description: "Total count of deliveries"
         agg_time_dimension: ship_date

@@ -80,7 +80,7 @@ Traverse the knowledge graph to find customers grouped by geographic region and 
 - **Use when**: Geographic customer distribution questions; demonstrates graph traversal (Customer → Nation → Region) without SQL joins
 
 #### 8. kg_high_value_customers
-Find high-value customers (account balance > 5000) with their geographic context.
+Find high-value customers with their geographic context. The definition of "high-value" is encoded in the knowledge graph layer — the agent doesn't need to know the threshold.
 - **Parameters**: None
 - **Returns**: List of customers with name, balance, nation, region
 - **Use when**: "Who are our best/high-value customers?" — the business concept is resolved semantically

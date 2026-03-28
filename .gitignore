@@ -1,6 +1,11 @@
-# Maven build output
-DataLakeHouseMCPJava/target/
-SemanticLayerMCPJava/target/
+# Log files
+~/lakehouse-mcp.log
+~/semantic-layer-mcp.log
+trino/~/lakehouse-mcp-java.log
+trino/~/semantic-layer-mcp-java.log
+**/*.log
+DataLakeHouseMCP/target/
+SemanticLayerMCP/target/
 
 # dbt build artifacts
 dbt-metricflow/target/
@@ -22,10 +27,12 @@ __pycache__/
 *.iml
 .vscode/
 
-# Kiro internal
-.kiro/
+# Kiro internal — exclude everything except steering files
 .kiro/specs/
+.kiro/agents/
+.kiro/settings/
 
 # Personal demo notes (not for public repo)
 demo-guide.md
 DEMO_CHECKLIST.md
+trino/validation-queries.sql

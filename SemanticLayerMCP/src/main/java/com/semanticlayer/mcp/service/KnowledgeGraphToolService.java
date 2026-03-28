@@ -193,7 +193,9 @@ public class KnowledgeGraphToolService {
     }
 
     @Tool(name = "kg_high_value_customers",
-          description = "Find high-value customers (account balance > 5000) with their geographic context. " +
+          description = "Find high-value customers (account balance > 8000) with their geographic context. " +
+                        "High-value is defined as customers in the top tier of account balance, indicating " +
+                        "strong creditworthiness and purchasing capacity. " +
                         "Demonstrates business concept resolution via the knowledge graph — 'high-value' is defined " +
                         "semantically, not as a raw SQL filter the agent had to guess.")
     public Object getHighValueCustomers() {
@@ -208,10 +210,10 @@ public class KnowledgeGraphToolService {
                   ?n :nationName ?nationName ;
                      :partOfRegion ?r .
                   ?r :regionName ?regionName .
-                  FILTER(?accountBalance > 5000)
+                  FILTER(?accountBalance > 8000)
                 }
                 ORDER BY DESC(?accountBalance)
-                LIMIT 20
+                LIMIT 25
                 """;
         return executeSparqlQuery(query);
     }

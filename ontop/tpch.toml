@@ -26,10 +26,10 @@ SELECT ?customerName ?accountBalance ?marketSegment WHERE {
      :customerName ?customerName ;
      :accountBalance ?accountBalance ;
      :marketSegment ?marketSegment .
-  FILTER(?accountBalance > 5000)
+  FILTER(?accountBalance > 8000)
 }
 ORDER BY DESC(?accountBalance)
-LIMIT 20
+LIMIT 25
 """
 
 [[tabGroups.tabs]]

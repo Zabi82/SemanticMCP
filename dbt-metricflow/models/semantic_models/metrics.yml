@@ -186,7 +186,7 @@ metrics:
     type: derived
     label: "Supplier On-Time Delivery Rate"
     type_params:
-      expr: (on_time_deliveries / total_deliveries) * 100
+      expr: (CAST(on_time_deliveries AS DOUBLE) / CAST(total_deliveries AS DOUBLE)) * 100
       metrics:
         - on_time_deliveries
         - total_deliveries

@@ -35,8 +35,9 @@ SemanticMCP/                          ← repo root
 ├── ontop/                            ← Ontop knowledge graph (OWL ontology + OBDA mappings)
 ├── DataLakeHouseMCP/                 ← MCP server: Trino/Iceberg data layer tools
 ├── SemanticLayerMCP/                 ← MCP server: metric store + knowledge graph tools
-├── agent-data-layer-only.md          ← agent instructions: Scenario One
-├── agent-data-and-semantic-layer.md  ← agent instructions: Scenario Two
+├── .claude/                          ← agent instructions for all AI clients
+│   ├── agent-data-layer-only.md      ← Scenario One instructions
+│   └── agent-data-and-semantic-layer.md ← Scenario Two instructions
 ├── DBT_METRICFLOW_EXPLAINED.md       ← deep dive: how dbt MetricFlow works
 └── ONTOP_EXPLAINED.md                ← deep dive: how Ontop virtual KG works
 ```
@@ -122,7 +123,7 @@ Use the JSON config snippets in the [AI Client Configuration](#ai-client-configu
 
 ### 5. Load agent instructions
 
-The `agent-data-layer-only.md` and `agent-data-and-semantic-layer.md` files contain the system prompt for each scenario.
+The `.claude/agent-data-layer-only.md` and `.claude/agent-data-and-semantic-layer.md` files contain the system prompt for each scenario.
 
 - **Claude Desktop**: paste as a system prompt at the start of each conversation
 - **Kiro**: type `#agent-data-layer-only` or `#agent-data-and-semantic-layer` in chat to load via steering files
@@ -139,8 +140,6 @@ The `agent-data-layer-only.md` and `agent-data-and-semantic-layer.md` files cont
 | Iceberg REST | 8181 | Iceberg catalog |
 
 ## Demo Scenarios
-
-See [demo-guide.md](demo-guide.md) for the full script, questions, and talking points.
 
 **Scenario One** — Data Layer Only: agent explores raw tables, guesses business logic, writes SQL manually.
 
@@ -270,15 +269,29 @@ Config location:
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-Paste the appropriate JSON above into the config file and restart Claude Desktop. Paste the contents of `agent-data-layer-only.md` or `agent-data-and-semantic-layer.md` as a system prompt at the start of each conversation.
+Paste the appropriate JSON above into the config file and restart Claude Desktop. Paste the contents of `.claude/agent-data-layer-only.md` or `.claude/agent-data-and-semantic-layer.md` as a system prompt at the start of each conversation.
 
 For the demo, open two separate Claude Desktop windows — one per scenario.
+
+### Claude Code
+
+Agent instruction files are in the `.claude/` folder. Copy the appropriate one to `CLAUDE.md` at the repo root before starting a session:
+
+```bash
+# Scenario One
+cp .claude/agent-data-layer-only.md CLAUDE.md
+
+# Scenario Two
+cp .claude/agent-data-and-semantic-layer.md CLAUDE.md
+```
+
+Claude Code automatically picks up `CLAUDE.md` as project-level instructions.
 
 ### Kiro
 
 Place the JSON in `~/.kiro/settings/mcp.json` (user-level) or `.kiro/settings/mcp.json` (workspace-level).
 
-In chat, type `#agent-data-layer-only` or `#agent-data-and-semantic-layer` to load the agent instructions via steering files.
+In chat, type `#agent-data-layer-only` or `#agent-data-and-semantic-layer` to load the agent instructions via steering files (sourced from `.claude/`).
 
 > Note: Kiro shows all tools from all configured MCP servers regardless of which steering file is active. For a clean comparison, use two separate Kiro workspace windows with different `mcp.json` configs.
 
@@ -319,7 +332,7 @@ MCP servers are configured in `.vscode/mcp.json` in your workspace (or user-leve
 
 You can also enable/disable individual servers or select specific tools via the Chat Customizations editor (`Chat: Open Chat Customizations` in the Command Palette) or by right-clicking a server in the MCP SERVERS section of the Extensions view.
 
-Paste the contents of `agent-data-layer-only.md` or `agent-data-and-semantic-layer.md` into `.github/copilot-instructions.md` to set the agent instructions for the workspace.
+Paste the contents of `.claude/agent-data-layer-only.md` or `.claude/agent-data-and-semantic-layer.md` into `.github/copilot-instructions.md` to set the agent instructions for the workspace.
 
 ## Try It Yourself
 
@@ -327,83 +340,62 @@ Once everything is running, try these questions with your AI agent to see the se
 
 ---
 
-### Q1: "What's our order completion rate?"
+### "What's our order completion rate?" ⭐ Best opener
 
-**Scenario One** — the agent explores the `orders` table, sees `orderstatus` with values `F`, `O`, `P`, and has to guess which ones mean "completed". It might get it right, or it might include `P` (Pending) as completed — which is wrong. The answer will vary depending on the agent's interpretation.
+**Scenario One** — explores `orders`, sees `orderstatus` with values `F`, `O`, `P`, and has to guess which means "completed". May include `P` (Pending) as completed — wrong. Answer varies between runs.
 
-**Scenario Two** — the agent calls `query_metric("order_completion_rate")` and gets **48.69%** immediately. The business rule (only `F` = Filled counts as completed) is encoded in the metric.
+**Scenario Two** — `query_metric("order_completion_rate")` → **48.69%**. Business rule encoded: only `F` (Filled) = completed.
 
-> Key insight: the semantic layer prevents "metric drift" — everyone gets the same answer, every time.
-
----
-
-### Q2: "Show me the top 5 regions by revenue"
-
-**Scenario One** — the agent attempts a 4-table JOIN: `lineitem → supplier → nation → region`. It may succeed if it figures out the foreign key chain, but it has to discover the relationships manually and may produce incorrect SQL or miss the discount calculation.
-
-**Scenario Two** — the agent calls `list_metrics()`, finds `revenue_by_region`, calls `list_dimensions("revenue_by_region")` to get the exact path, then queries with the correct dimension. No JOIN logic needed.
-
-Expected result (both scenarios if correct): ASIA ~$560M, AFRICA ~$421M, EUROPE ~$411M, AMERICA ~$410M, MIDDLE EAST ~$243M.
+> Key insight: the semantic layer prevents metric drift — everyone gets the same answer, every time.
 
 ---
 
-### Q3: "What does our data model look like — what entities exist?"
+### "What's our supplier on-time delivery rate?"
 
-**Scenario One** — the agent calls `trino_iceberg_tables()` and lists raw table names (`customer`, `orders`, `lineitem`, etc.). It describes a database schema.
+**Scenario One** — has to guess the business definition of "on-time". May use receipt date, ship date, or some proxy.
 
-**Scenario Two** — the agent calls `kg_ontology_classes()` and gets back 7 entity classes with their relationships described as a conceptual model — Customer places Orders, Orders have LineItems, LineItems are supplied by Suppliers, etc.
-
-> The difference: Scenario One shows you tables. Scenario Two shows you a domain model.
+**Scenario Two** — `query_metric("supplier_on_time_rate")` → **49.39%**. Business rule encoded: `shipdate <= commitdate`.
 
 ---
 
-### Q4: "Who are our high-value customers and how much revenue do they generate?"
+### "What percentage of our orders are high priority?"
 
-**Scenario One** — the agent will try to define "high-value" itself, likely using account balance or revenue threshold. It will write a JOIN across `customer`, `orders`, and `lineitem`. The definition of "high-value" is arbitrary and may differ from the business definition.
+**Scenario One** — sees `orderpriority` with 5 levels. May include `3-MEDIUM` (too broad) or only `1-URGENT` (too narrow).
 
-**Scenario Two** — cross-layer query:
-1. `kg_high_value_customers()` → customers with balance > 5000 (semantically defined)
-2. `query_metric("revenue", ["order_id__customer_id__customer_name"], ...)` → validated revenue per customer
-3. Agent cross-references both: high-balance customers vs high-revenue customers — finds untapped potential
-
-> Scenario One gives an answer. Scenario Two gives the *right* answer using the business definition, then enriches it with revenue data from the metric store.
+**Scenario Two** — `query_metric("high_priority_order_rate")` → **40.57%**. Business rule: only `1-URGENT` and `2-HIGH` count.
 
 ---
 
-### Q5: "Compare supplier concentration vs customer concentration by region"
+### "What does our data model look like — what entities exist?"
 
-**Scenario One** — the agent writes two separate JOINs (`supplier → nation → region` and `customer → nation → region`), aggregates, and manually compares. Doable but verbose.
+**Scenario One** — lists raw table names. Describes a database schema.
 
-**Scenario Two** — the agent calls `kg_suppliers_by_region()` and `kg_customers_by_region()`, then reasons across both results. No SQL, no joins — pure graph traversal, and the agent synthesises the comparison.
+**Scenario Two** — `kg_ontology_classes()` → 7 entity classes with relationships as a domain model. Customer places Orders, Orders have LineItems, LineItems are supplied by Suppliers, etc.
 
-> Both scenarios can answer this, but Scenario Two does it in 2 tool calls vs multiple SQL queries.
-
----
-
-### Q6: "Which region generates the most revenue — and do we have enough suppliers there?" ⭐ Cross-layer
-
-This question requires both the metric store AND the knowledge graph together.
-
-**Scenario One** — the agent writes two separate SQL queries: one to aggregate revenue by region (4-table JOIN), another to count suppliers by region (3-table JOIN). It then manually compares the results. Possible but requires significant SQL effort.
-
-**Scenario Two** — the agent uses both semantic layer components:
-1. `query_metric("revenue_by_region", ["supplier_id__region_id__region_name"], "revenue_by_region", "DESC")` → revenue per region from the **metric store**
-2. `kg_suppliers_by_region()` → supplier counts per region from the **knowledge graph** (graph traversal: Supplier → Nation → Region)
-3. Agent reasons across both: "ASIA has the highest revenue (~$560M) AND the most suppliers (27) — well covered. MIDDLE EAST has the lowest supplier count (12) but significant revenue (~$243M) — potential supply risk."
-
-> Neither tool alone answers this. The metric store answers "how much revenue", the knowledge graph answers "how are suppliers distributed". The agent orchestrates both and produces a business insight.
+> Scenario One shows you tables. Scenario Two shows you a domain model.
 
 ---
 
-### Q7: "How many orders were placed in the last quarter?"
+### "Who are our high-value customers and how much revenue are they generating?" ⭐ Cross-layer killer
 
-A simple factual query — both scenarios use direct Trino SQL for this since it's raw data exploration.
+**Scenario One** — guesses what "high-value" means. Inconsistent definition, multi-table JOINs.
 
-**Scenario One** — the agent calls `trino_iceberg_tables("semantic_demo", "ice_db")`, then `get_iceberg_table_schema("semantic_demo", "ice_db", "orders")` to find the date column, then executes:
-```sql
-SELECT COUNT(*) FROM orders WHERE orderdate >= DATE '1997-10-01' AND orderdate < DATE '1998-01-01'
-```
+**Scenario Two**:
+1. `kg_high_value_customers()` → top-tier creditworthiness customers with geographic context (semantically defined in the ontology)
+2. `query_metric("revenue", ["order_id__customer_id__customer_name"], "revenue", "DESC", 100)` → validated revenue per customer
+3. Agent cross-references: most high-balance customers are NOT top revenue generators → upsell/retention opportunity
 
-**Scenario Two** — the agent also uses `execute_trino_query` directly. Even though the semantic layer is available, for simple raw data questions the agent correctly falls back to direct SQL — the metric store is for business metrics, not ad-hoc date filters.
+> The knowledge graph defines "high-value" by creditworthiness. The metric store measures purchasing behaviour. Only by combining both can you find the gap — and that gap is actionable.
 
-> This shows that Scenario Two doesn't replace SQL — it adds a semantic layer on top. The agent chooses the right tool for the right question.
+---
+
+### "Which region generates the most revenue — and do we have enough suppliers there?"
+
+**Scenario One** — two separate complex SQL queries, manual comparison.
+
+**Scenario Two**:
+1. `query_metric("revenue_by_region", ...)` → ASIA ~$560M, AFRICA ~$421M, EUROPE ~$411M, AMERICA ~$410M, MIDDLE EAST ~$243M
+2. `kg_suppliers_by_region()` → supplier counts per region via graph traversal
+3. Agent: "ASIA has highest revenue AND most suppliers — well covered. MIDDLE EAST has lowest supplier count but significant revenue — supply risk."
+
+> Metric store answers "how much". Knowledge graph answers "how distributed". Agent orchestrates both.
