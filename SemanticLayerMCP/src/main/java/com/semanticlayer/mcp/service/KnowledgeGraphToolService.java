@@ -192,11 +192,11 @@ public class KnowledgeGraphToolService {
         }
     }
 
-    @Tool(name = "kg_high_value_customers",
-          description = "Find high-value customers (account balance > 8000) with their geographic context. " +
-                        "High-value is defined as customers in the top tier of account balance, indicating " +
+    @Tool(name = "kg_premium_customers",
+          description = "Find premium customers (account balance > 8000) with their geographic context. " +
+                        "Premium customers are defined as those in the top tier of account balance, indicating " +
                         "strong creditworthiness and purchasing capacity. " +
-                        "Demonstrates business concept resolution via the knowledge graph — 'high-value' is defined " +
+                        "Demonstrates business concept resolution via the knowledge graph — 'premium' is defined " +
                         "semantically, not as a raw SQL filter the agent had to guess.")
     public Object getHighValueCustomers() {
         String query = """

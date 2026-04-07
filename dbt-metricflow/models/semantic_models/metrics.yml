@@ -133,16 +133,6 @@ metrics:
       measure: net_revenue
     description: "Running total of revenue over time"
   
-  # Metrics with filters
-  - name: premium_customer_revenue
-    type: simple
-    label: "Premium Customer Revenue"
-    type_params:
-      measure: net_revenue
-    filter: |
-      {{ Dimension('customer_id__market_segment') }} IN ('AUTOMOBILE', 'BUILDING')
-    description: "Revenue from premium market segments only"
-  
   # Time-based metrics
   - name: monthly_revenue
     type: simple

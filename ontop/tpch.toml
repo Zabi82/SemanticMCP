@@ -18,7 +18,7 @@ LIMIT 50
 """
 
 [[tabGroups.tabs]]
-name = "High-Value Customers"
+name = "Premium Customers"
 query = """
 PREFIX : <http://example.org/tpch#>
 SELECT ?customerName ?accountBalance ?marketSegment WHERE {

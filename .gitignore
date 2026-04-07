@@ -4,6 +4,10 @@
 trino/~/lakehouse-mcp-java.log
 trino/~/semantic-layer-mcp-java.log
 **/*.log
+
+# Kafka Connect downloaded plugins (build locally via setup-connector.sh)
+SemanticMCPLightWeight/kafka-connect/plugins/*.jar
+SemanticMCPLightWeight/kafka-connect/plugins/*.zip
 DataLakeHouseMCP/target/
 SemanticLayerMCP/target/
 
