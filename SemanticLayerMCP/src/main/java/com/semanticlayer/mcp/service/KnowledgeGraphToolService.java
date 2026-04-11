@@ -192,21 +192,28 @@ public class KnowledgeGraphToolService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Tool(name = "kg_premium_customers",
           description = "Find premium customers (account balance > 8000) with their geographic context. " +
                         "Premium customers are defined as those in the top tier of account balance, indicating " +
                         "strong creditworthiness and purchasing capacity. " +
-                        "Demonstrates business concept resolution via the knowledge graph — 'premium' is defined " +
-                        "semantically, not as a raw SQL filter the agent had to guess.")
+                        "Returns custkey (customer ID), customerName, accountBalance, marketSegment, nationName, regionName. " +
+                        "AGENT CHAINING: After getting this list, to query any metric for only these customers: " +
+                        "(1) call list_dimensions for the target metric to find the dimension containing 'customer_key', " +
+                        "(2) pass the custkey values as entityFilter (strings) and that dimension as entityColumn to query_metric. " +
+                        "For order/revenue metrics the column is typically 'order_id__customer_key'; " +
+                        "for customer metrics it is 'customer_id__customer_key'. " +
+                        "Always include 'order_id__customer_id__customer_name' or equivalent name dimension for readable output. " +
+                        "Do NOT query the full metric store and filter in-memory — always use entityFilter.")
     public Object getHighValueCustomers() {
         String query = """
                 PREFIX : <http://example.org/tpch#>
-                SELECT ?customerName ?accountBalance ?marketSegment ?nationName ?regionName WHERE {
-                  ?c a :Customer ;
-                     :customerName ?customerName ;
-                     :accountBalance ?accountBalance ;
-                     :marketSegment ?marketSegment ;
-                     :belongsToNation ?n .
+                SELECT ?customerUri ?customerName ?accountBalance ?marketSegment ?nationName ?regionName WHERE {
+                  ?customerUri a :Customer ;
+                               :customerName ?customerName ;
+                               :accountBalance ?accountBalance ;
+                               :marketSegment ?marketSegment ;
+                               :belongsToNation ?n .
                   ?n :nationName ?nationName ;
                      :partOfRegion ?r .
                   ?r :regionName ?regionName .
@@ -215,7 +222,8 @@ public class KnowledgeGraphToolService {
                 ORDER BY DESC(?accountBalance)
                 LIMIT 25
                 """;
-        return executeSparqlQuery(query);
+        Map<String, Object> raw = (Map<String, Object>) executeSparqlQuery(query);
+        return enrichWithCustkey(raw);
     }
 
     @Tool(name = "kg_customer_order_graph",
@@ -316,6 +324,36 @@ public class KnowledgeGraphToolService {
                     """;
             return executeSparqlQuery(query);
         }
+    }
+
+    /**
+     * Post-process SPARQL results to extract custkey from the customer URI
+     * (e.g. http://example.org/tpch#customer/42 → custkey=42) and add it as
+     * a plain field so the agent can use it directly as customer__customer_id
+     * when calling MetricFlow.
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> enrichWithCustkey(Map<String, Object> sparqlResult) {
+        if (sparqlResult.containsKey("error")) return sparqlResult;
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) sparqlResult.get("rows");
+        if (rows == null) return sparqlResult;
+
+        List<Map<String, Object>> enriched = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Map<String, Object> r = new LinkedHashMap<>(row);
+            Object uri = r.remove("customerUri"); // remove raw URI, replace with clean ID
+            if (uri != null) {
+                String uriStr = uri.toString();
+                int slash = uriStr.lastIndexOf('/');
+                if (slash >= 0) r.put("custkey", uriStr.substring(slash + 1));
+            }
+            enriched.add(r);
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>(sparqlResult);
+        result.put("rows", enriched);
+        result.put("note", "custkey matches customer__customer_id in MetricFlow — use it to filter revenue results");
+        return result;
     }
 
     @SuppressWarnings("unchecked")

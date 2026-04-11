@@ -30,6 +30,11 @@ semantic_models:
         type: categorical
         expr: orderpriority
         description: "Order priority level"
+
+      - name: customer_key
+        type: categorical
+        expr: custkey
+        description: "Customer ID as a filterable dimension — use this in --where filters to scope metrics to specific customers"
     
     # Define measures (raw metrics that can be aggregated)
     measures:

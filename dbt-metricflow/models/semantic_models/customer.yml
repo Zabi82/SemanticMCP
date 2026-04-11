@@ -21,8 +21,11 @@ semantic_models:
         type: categorical
         expr: customer_name
       
-      # Add a time dimension for customers (when they were added)
-      # If you don't have a customer_since date, we can use a constant
+      - name: customer_key
+        type: categorical
+        expr: custkey
+        description: "Customer ID as a filterable dimension for scoping metrics to specific customers"
+
       - name: customer_since
         type: time
         expr: "DATE '1990-01-01'"  # Placeholder - all customers treated as existing from this date
@@ -38,7 +41,7 @@ semantic_models:
         agg_time_dimension: customer_since
         create_metric: true
       
-      - name: total_account_balance
+      - name: acct_balance_sum
         agg: sum
         expr: account_balance
         description: "Sum of customer account balances"

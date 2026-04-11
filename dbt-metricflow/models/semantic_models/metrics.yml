@@ -158,6 +158,13 @@ metrics:
     description: "Revenue broken down by geographic region"
   
   # Supplier metrics
+  - name: total_account_balance
+    type: simple
+    label: "Total Account Balance"
+    type_params:
+      measure: acct_balance_sum
+    description: "Sum of account balances across customers — use with customer_id__customer_key dimension to scope to a cohort"
+
   - name: supplier_count
     type: simple
     label: "Supplier Count"

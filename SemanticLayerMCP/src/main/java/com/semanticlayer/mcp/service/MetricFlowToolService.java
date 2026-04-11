@@ -86,8 +86,19 @@ public class MetricFlowToolService {
         }
     }
     
-    @Tool(name = "query_metric", description = "Query a metric with optional dimensions, filters, and time range. Returns the metric data. Parameters: metricName (required), dimensions (optional array of dimension names), orderBy (optional - column name to sort by, typically the metric name or a dimension), orderDirection (optional - 'DESC' for highest-first or 'ASC' for lowest-first, defaults to 'DESC'), limit (optional integer - use reasonable limits like 10-25 for top/bottom results, omit for complete datasets).")
-    public Object queryMetric(String metricName, String[] dimensions, String orderBy, String orderDirection, Integer limit) {
+    @Tool(name = "query_metric", description = "Query a metric with optional dimensions and time range. " +
+          "Parameters: metricName (required), dimensions (optional array of dimension names to group by), " +
+          "orderBy (optional - column to sort by), orderDirection (optional - 'DESC' or 'ASC', defaults to 'DESC'), " +
+          "limit (optional integer), " +
+          "startTime (optional - start date filter in YYYY-MM-DD format, e.g. '1995-01-01' for Q1 1995), " +
+          "endTime (optional - end date filter in YYYY-MM-DD format, e.g. '1995-03-31' for Q1 1995), " +
+          "entityFilter (optional - list of entity ID values as strings to scope results to a specific cohort, " +
+          "e.g. custkey values from kg_premium_customers — use this instead of fetching all results and filtering in-memory), " +
+          "entityColumn (optional - the dimension column to apply entityFilter on, " +
+          "e.g. 'order_id__customer_key' when filtering by customer IDs from the knowledge graph).")
+    public Object queryMetric(String metricName, String[] dimensions, String orderBy, String orderDirection,
+                              Integer limit, String startTime, String endTime,
+                              String[] entityFilter, String entityColumn) {
         if (metricName == null || metricName.trim().isEmpty()) {
             return Map.of("error", "Metric name must be provided");
         }
@@ -112,7 +123,23 @@ public class MetricFlowToolService {
             if (limit != null && limit > 0) {
                 requestBody.put("limit", limit);
             }
-            
+
+            if (startTime != null && !startTime.trim().isEmpty()) {
+                requestBody.put("start_time", startTime.trim());
+            }
+
+            if (endTime != null && !endTime.trim().isEmpty()) {
+                requestBody.put("end_time", endTime.trim());
+            }
+
+            if (entityFilter != null && entityFilter.length > 0) {
+                requestBody.put("entity_filter", Arrays.asList(entityFilter));
+            }
+
+            if (entityColumn != null && !entityColumn.trim().isEmpty()) {
+                requestBody.put("entity_column", entityColumn.trim());
+            }
+
             String url = metricflowUrl + "/api/v1/query";
             ResponseEntity<Map> response = restTemplate.postForEntity(url, requestBody, Map.class);
             

@@ -147,6 +147,32 @@ def query_metric():
     if dimensions:
         cmd_args.extend(["--group-by", ",".join(dimensions)])
     
+    # Handle date range and entity filtering — must be combined into a single --where string
+    # because multiple --where flags cause MetricFlow to drop all but the last one.
+    start_time = data.get('start_time')
+    end_time = data.get('end_time')
+    entity_filter = data.get('entity_filter')   # list of IDs, e.g. [919, 43, 1051]
+    entity_column = data.get('entity_column')   # e.g. "order_id__customer_key"
+
+    where_parts = []
+
+    if start_time and end_time:
+        where_parts.append(
+            f"{{{{ TimeDimension('metric_time', 'day') }}}} >= date '{start_time}' "
+            f"and {{{{ TimeDimension('metric_time', 'day') }}}} <= date '{end_time}'"
+        )
+    elif start_time:
+        where_parts.append(f"{{{{ TimeDimension('metric_time', 'day') }}}} >= date '{start_time}'")
+    elif end_time:
+        where_parts.append(f"{{{{ TimeDimension('metric_time', 'day') }}}} <= date '{end_time}'")
+
+    if entity_filter and entity_column:
+        quoted = ", ".join(f"'{v}'" for v in entity_filter)
+        where_parts.append(f"CAST({entity_column} AS VARCHAR) IN ({quoted})")
+
+    if where_parts:
+        cmd_args.extend(["--where", " AND ".join(where_parts)])
+
     # Handle ordering
     # Note: metricflow CLI --order defaults to ASC
     # For DESC, we need to request more rows, reverse, then limit
