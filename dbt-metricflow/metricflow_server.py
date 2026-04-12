@@ -168,7 +168,7 @@ def query_metric():
 
     if entity_filter and entity_column:
         quoted = ", ".join(f"'{v}'" for v in entity_filter)
-        where_parts.append(f"CAST({entity_column} AS VARCHAR) IN ({quoted})")
+        where_parts.append(f"CAST({{{{ Dimension('{entity_column}') }}}} AS VARCHAR) IN ({quoted})")
 
     if where_parts:
         cmd_args.extend(["--where", " AND ".join(where_parts)])
