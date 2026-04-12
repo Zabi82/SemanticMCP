@@ -85,6 +85,41 @@ public class MetricFlowToolService {
             return Map.of("error", e.getMessage());
         }
     }
+
+    @Tool(name = "list_entity_filter_dimensions",
+          description = "List dimensions that can be safely used as entityColumn in query_metric for cohort filtering. " +
+                        "Only returns direct dimensions on the fact model (single-hop, e.g. 'order_id__customer_key'). " +
+                        "Excludes joined dimensions (multi-hop, e.g. 'order_id__customer_id__customer_key') which cannot be used as entityColumn and will cause errors. " +
+                        "Always call this instead of list_dimensions when you need to pick an entityColumn.")
+    public Object listEntityFilterDimensions(String metricName) {
+        if (metricName == null || metricName.trim().isEmpty()) {
+            return Map.of("error", "Metric name must be provided");
+        }
+        try {
+            String url = metricflowUrl + "/api/v1/metrics/" + metricName + "/dimensions";
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                return Map.of("error", "Failed to fetch dimensions for metric: " + metricName);
+            }
+            Object rawDimensions = response.getBody().get("dimensions");
+            if (!(rawDimensions instanceof List)) {
+                return Map.of("error", "Unexpected dimensions format");
+            }
+            // Only keep dimensions with exactly one double-underscore segment after the entity prefix
+            // i.e. entity_id__dimension_name — direct dimensions, not joined ones
+            List<String> direct = ((List<?>) rawDimensions).stream()
+                .filter(d -> d instanceof String)
+                .map(d -> (String) d)
+                .filter(d -> d.chars().filter(c -> c == '_').count() == 2 ||
+                             (d.contains("__") && d.indexOf("__") == d.lastIndexOf("__")))
+                .collect(java.util.stream.Collectors.toList());
+            logger.info("Filtered to {} direct entity filter dimensions for metric: {}", direct.size(), metricName);
+            return Map.of("metric", metricName, "entity_filter_dimensions", direct, "count", direct.size());
+        } catch (Exception e) {
+            logger.error("Error fetching entity filter dimensions for {}: {}", metricName, e.getMessage());
+            return Map.of("error", e.getMessage());
+        }
+    }
     
     @Tool(name = "query_metric", description = "Query a metric with optional dimensions and time range. " +
           "Parameters: metricName (required), dimensions (optional array of dimension names to group by), " +
@@ -94,8 +129,7 @@ public class MetricFlowToolService {
           "endTime (optional - end date filter in YYYY-MM-DD format, e.g. '1995-03-31' for Q1 1995), " +
           "entityFilter (optional - list of entity ID values as strings to scope results to a specific cohort, " +
           "e.g. custkey values from kg_premium_customers — use this instead of fetching all results and filtering in-memory), " +
-          "entityColumn (optional - the dimension column to apply entityFilter on, " +
-          "e.g. 'order_id__customer_key' when filtering by customer IDs from the knowledge graph).")
+          "entityColumn (optional - the dimension column to apply entityFilter on — use list_entity_filter_dimensions to find valid values for this field).")
     public Object queryMetric(String metricName, String[] dimensions, String orderBy, String orderDirection,
                               Integer limit, String startTime, String endTime,
                               String[] entityFilter, String entityColumn) {
