@@ -35,9 +35,19 @@ SemanticMCP/                          ← repo root
 ├── ontop/                            ← Ontop knowledge graph (OWL ontology + OBDA mappings)
 ├── DataLakeHouseMCP/                 ← MCP server: Trino/Iceberg data layer tools
 ├── SemanticLayerMCP/                 ← MCP server: metric store + knowledge graph tools
-├── .claude/                          ← agent instructions for all AI clients
-│   ├── agent-data-layer-only.md      ← Scenario One instructions
-│   └── agent-data-and-semantic-layer.md ← Scenario Two instructions
+├── .claude/                          ← agent instructions for Claude
+│   └── agents/
+│       ├── agent-data-layer-only.md      ← Scenario One instructions
+│       └── agent-data-and-semantic-layer.md ← Scenario Two instructions
+├── .github/
+│   ├── agents/                       ← agent instructions for GitHub Copilot
+│   │   ├── data-layer-only.agent.md
+│   │   └── data-and-semantic-layer.agent.md
+│   └── copilot-instructions.md       ← active Copilot instructions (swap per scenario)
+├── .kiro/
+│   └── steering/                     ← agent instructions for Kiro
+│       ├── agent-data-layer-only.md
+│       └── agent-data-and-semantic-layer.md
 ├── DBT_METRICFLOW_EXPLAINED.md       ← deep dive: how dbt MetricFlow works
 └── ONTOP_EXPLAINED.md                ← deep dive: how Ontop virtual KG works
 ```
@@ -52,7 +62,7 @@ SemanticMCP/                          ← repo root
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    AI Agents (Kiro/Claude)               │
+│                AI Agents (Kiro / Claude / Copilot)          │
 │              via MCP (Model Context Protocol)            │
 └────────────────────┬────────────────────────────────────┘
                      │
@@ -123,11 +133,13 @@ Use the JSON config snippets in the [AI Client Configuration](#ai-client-configu
 
 ### 5. Load agent instructions
 
-The `.claude/agent-data-layer-only.md` and `.claude/agent-data-and-semantic-layer.md` files contain the system prompt for each scenario.
+Agent instruction files are organized per AI client:
 
-- **Claude Desktop**: paste as a system prompt at the start of each conversation
-- **Kiro**: type `#agent-data-layer-only` or `#agent-data-and-semantic-layer` in chat to load via steering files
-- **GitHub Copilot**: paste into `.github/copilot-instructions.md` or as a custom instruction
+- **Claude**: `.claude/agents/`
+- **Kiro**: `.kiro/steering/`
+- **GitHub Copilot**: `.github/agents/`
+
+See the [AI Client Configuration](#ai-client-configuration) section for how to load them in each client.
 
 ## Services
 
@@ -269,20 +281,20 @@ Config location:
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-Paste the appropriate JSON above into the config file and restart Claude Desktop. Paste the contents of `.claude/agent-data-layer-only.md` or `.claude/agent-data-and-semantic-layer.md` as a system prompt at the start of each conversation.
+Paste the appropriate JSON above into the config file and restart Claude Desktop. Paste the contents of `.claude/agents/agent-data-layer-only.md` or `.claude/agents/agent-data-and-semantic-layer.md` as a system prompt at the start of each conversation.
 
 For the demo, open two separate Claude Desktop windows — one per scenario.
 
 ### Claude Code
 
-Agent instruction files are in the `.claude/` folder. Copy the appropriate one to `CLAUDE.md` at the repo root before starting a session:
+Agent instruction files are in `.claude/agents/`. Copy the appropriate one to `CLAUDE.md` at the repo root before starting a session:
 
 ```bash
 # Scenario One
-cp .claude/agent-data-layer-only.md CLAUDE.md
+cp .claude/agents/agent-data-layer-only.md CLAUDE.md
 
 # Scenario Two
-cp .claude/agent-data-and-semantic-layer.md CLAUDE.md
+cp .claude/agents/agent-data-and-semantic-layer.md CLAUDE.md
 ```
 
 Claude Code automatically picks up `CLAUDE.md` as project-level instructions.
@@ -291,7 +303,7 @@ Claude Code automatically picks up `CLAUDE.md` as project-level instructions.
 
 Place the JSON in `~/.kiro/settings/mcp.json` (user-level) or `.kiro/settings/mcp.json` (workspace-level).
 
-In chat, type `#agent-data-layer-only` or `#agent-data-and-semantic-layer` to load the agent instructions via steering files (sourced from `.claude/`).
+In chat, type `#agent-data-layer-only` or `#agent-data-and-semantic-layer` to load the agent instructions via steering files (sourced from `.kiro/steering/`).
 
 > Note: Kiro shows all tools from all configured MCP servers regardless of which steering file is active. For a clean comparison, use two separate Kiro workspace windows with different `mcp.json` configs.
 
@@ -332,7 +344,7 @@ MCP servers are configured in `.vscode/mcp.json` in your workspace (or user-leve
 
 You can also enable/disable individual servers or select specific tools via the Chat Customizations editor (`Chat: Open Chat Customizations` in the Command Palette) or by right-clicking a server in the MCP SERVERS section of the Extensions view.
 
-Paste the contents of `.claude/agent-data-layer-only.md` or `.claude/agent-data-and-semantic-layer.md` into `.github/copilot-instructions.md` to set the agent instructions for the workspace.
+Paste the contents of `.github/agents/data-layer-only.agent.md` or `.github/agents/data-and-semantic-layer.agent.md` into `.github/copilot-instructions.md` to set the agent instructions for the workspace.
 
 ## Try It Yourself
 
