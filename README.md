@@ -60,31 +60,7 @@ SemanticMCP/                          ← repo root
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                AI Agents (Kiro / Claude / Copilot)          │
-│              via MCP (Model Context Protocol)            │
-└────────────────────┬────────────────────────────────────┘
-                     │
-        ┌────────────┴────────────┐
-        │                         │
-┌───────▼──────────┐   ┌──────────▼──────────┐
-│  DataLakehouse   │   │   SemanticLayer MCP  │
-│    MCP Server    │   │       Server         │
-│  (Trino tools)   │   │  Metric Store (dbt)  │
-└───────┬──────────┘   │  Knowledge Graph     │
-        │              │  (Ontop/SPARQL)      │
-        │              └──────────┬───────────┘
-        │                         │
-┌───────▼─────────────────────────▼───────────┐
-│              Trino Query Engine              │
-└───────────────────┬─────────────────────────┘
-                    │
-┌───────────────────▼─────────────────────────┐
-│         Iceberg Tables (TPC-H data)          │
-│         MinIO (S3-compatible storage)        │
-└─────────────────────────────────────────────┘
-```
+![Architecture Diagram](images/architecture.png)
 
 ## Quick Start
 
