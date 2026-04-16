@@ -1,6 +1,6 @@
 # Intelligent Data Platform Demo
 
-Demo for the talk: **"Intelligent Data Platform: Powered by Semantic Layer, MCP and Agents"**
+Demo for the talk: **"Intelligent Data Platform: Powered by Semantic Layer, MCP and Agents"** ([Slides](https://speakerdeck.com/zabi82/intelligent-data-platform-powered-by-semantic-layers-mcp-and-agents-fost-api-days-2026-singapore))
 
 ## Overview
 
